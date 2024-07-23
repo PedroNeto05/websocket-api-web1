@@ -15,9 +15,10 @@ type Client struct {
 
 // Message represents a message sent by a client
 type Message struct {
-	Id      string `json:"id"`
-	UserID  string `json:"userId"`
-	Content string `json:"content"`
+	Id       string `json:"id"`
+	UserId   string `json:"userId"`
+	UserName string `json:"userName"`
+	Content  string `json:"content"`
 }
 
 var (
