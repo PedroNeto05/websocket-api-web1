@@ -2,9 +2,12 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/joho/godotenv"
 )
 
 // Client represents a connected websocket client
@@ -36,6 +39,10 @@ func main() {
 		return fiber.ErrUpgradeRequired
 	})
 
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+	}))
+
 	app.Get("/ws", websocket.New(func(c *websocket.Conn) {
 		defer func() {
 			delete(clients, c)
@@ -51,14 +58,21 @@ func main() {
 				delete(clients, c)
 				break
 			}
-
 			broadcast <- msg
 		}
 	}))
 
 	go handleMessages()
 
-	log.Fatal(app.Listen(":3001"))
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Erro ao carregar o arquivo .env: %v", err)
+	}
+
+	host := os.Getenv("HOST")
+	port := "3001"
+	adrr := host + ":" + port
+	log.Fatal(app.Listen(adrr))
 }
 
 func handleMessages() {
